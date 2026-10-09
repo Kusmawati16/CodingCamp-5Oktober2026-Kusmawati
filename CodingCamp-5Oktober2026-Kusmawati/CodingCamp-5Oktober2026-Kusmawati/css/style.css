@@ -1,0 +1,263 @@
+/* css/style.css */
+
+/* =============================================================================
+   1. CSS Custom Properties (Design Tokens)
+   Requirements: 6.1, 6.3
+   ============================================================================= */
+
+:root {
+  /* Pastel colour palette */
+  --lavender:       #C9B8E8;
+  --lavender-light: #EDE8F5;
+  --mint:           #A8D5BA;
+  --mint-light:     #E8F5EE;
+  --peach:          #F5C6A0;
+  --peach-light:    #FDF0E8;
+  --sky:            #A8C8E8;
+  --sky-light:      #E8F0F8;
+
+  /* Typography colours */
+  --text-main:  #3D3D4E;
+  --text-muted: #888899;
+
+  /* Neutrals */
+  --white: #FFFFFF;
+}
+
+/* =============================================================================
+   2. Global Reset
+   Requirements: 6.3
+   ============================================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* =============================================================================
+   3. Base Body Typography
+   Requirements: 6.3
+   ============================================================================= */
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 16px;
+  color: var(--text-main);
+  background-color: var(--lavender-light);
+}
+
+/* =============================================================================
+   4. Responsive Grid Layout
+   Requirements: 6.4, 6.5
+   ============================================================================= */
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (max-width: 767px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =============================================================================
+   5. Panel Cards & Per-Section Backgrounds
+   Requirements: 6.1, 6.3
+   ============================================================================= */
+
+/* Base panel card styles */
+.panel {
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  background-color: var(--white);
+}
+
+/* Per-section pastel backgrounds */
+#greeting-panel {
+  background-color: var(--lavender-light);
+}
+
+#timer-panel {
+  background-color: var(--mint-light);
+}
+
+#todo-panel {
+  background-color: var(--peach-light);
+}
+
+#links-panel {
+  background-color: var(--sky-light);
+}
+
+/* Panel headings */
+.panel h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/* Timer display */
+#timer-display {
+  font-size: 3rem;
+  font-weight: bold;
+  text-align: center;
+  margin: 1rem 0;
+}
+
+/* Clock element */
+#clock {
+  font-size: 3rem;
+  font-weight: bold;
+}
+
+/* =============================================================================
+   6. Button Styles & Interactive States
+   Requirements: 6.3
+   ============================================================================= */
+
+button {
+  background: var(--lavender);
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+button:hover {
+  filter: brightness(0.9);
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+/* =============================================================================
+   7. Completed Task Style
+   Requirements: 6.3
+   ============================================================================= */
+
+.task-item.done .task-title {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+/* =============================================================================
+   8. Input Styles
+   Requirements: 6.3
+   ============================================================================= */
+
+.edit-input,
+#task-input,
+#link-label-input,
+#link-url-input {
+  border: 2px solid var(--lavender);
+  border-radius: 6px;
+  padding: 0.5rem;
+  font-size: 1rem;
+  width: 100%;
+}
+
+/* =============================================================================
+   9. Utility Classes
+   Requirements: 6.3
+   ============================================================================= */
+
+.hidden {
+  display: none !important;
+}
+
+/* =============================================================================
+   10. To-Do Component Layout
+   Requirements: 6.3
+   ============================================================================= */
+
+.todo-input-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+#task-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: var(--white);
+  border-radius: 8px;
+}
+
+.task-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 0.25rem;
+}
+
+/* =============================================================================
+   11. Links Component Layout
+   Requirements: 6.3
+   ============================================================================= */
+
+.link-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+#links-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.link-btn {
+  background: var(--sky);
+  border-radius: 8px;
+}
+
+/* =============================================================================
+   12. Timer Controls Layout
+   Requirements: 2.1
+   ============================================================================= */
+
+.timer-controls {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+/* =============================================================================
+   13. Add-Link Form Layout
+   Requirements: 4.2
+   ============================================================================= */
+
+#add-link-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* Override display:none from .hidden — when visible, restore flex */
+#add-link-form:not(.hidden) {
+  display: flex;
+}

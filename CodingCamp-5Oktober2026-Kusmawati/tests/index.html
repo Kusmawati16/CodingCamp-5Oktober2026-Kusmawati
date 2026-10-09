@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Property-Based Test Runner</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        max-width: 820px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+        background: #f5f5f5;
+        color: #333;
+      }
+      h1 { font-size: 1.4rem; margin-bottom: 0.5rem; }
+      #status {
+        margin: 1rem 0;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+      }
+      .running { background: #fff3cd; color: #856404; }
+      .pass    { background: #d1e7dd; color: #0a3622; }
+      .fail    { background: #f8d7da; color: #58151c; }
+      pre {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 1rem;
+        font-size: 0.85rem;
+        white-space: pre-wrap;
+        word-break: break-word;
+        min-height: 80px;
+      }
+      p.note { font-size: 0.85rem; color: #666; }
+    </style>
+  </head>
+  <body>
+    <h1>Property-Based Test Runner — GreetingModule &amp; TimerModule</h1>
+    <p class="note">
+      Tests run automatically on load. Check the console for full fast-check output.
+    </p>
+    <div id="status" class="running">⏳ Running tests…</div>
+    <pre id="output">Loading…</pre>
+
+    <!--
+      Load app.js FIRST so window._test is populated before the test script runs.
+      The DOMContentLoaded listener inside app.js will fire normally but won't break
+      anything because there are no #greeting-panel / #timer-display elements here.
+    -->
+    <script src="../js/app.js"></script>
+
+    <!--
+      fast-check — property-based testing library (vanilla-JS compatible, no bundler needed).
+      We load it from a CDN. For fully offline / file:// use, download to tests/vendor/fast-check.min.js
+      and change the src to "./vendor/fast-check.min.js".
+    -->
+    <script src="https://cdn.jsdelivr.net/npm/fast-check@3.22.0/lib/bundle/fast-check.umd.cjs" integrity="sha256-jqAUFPqvZjSCu/kJPXo3bG2Bkn4QQVzfgFaCCo7ICk=" crossorigin="anonymous"></script>
+
+    <script>
+      // Capture console output for display in the page
+      var outputEl = document.getElementById('output');
+      var statusEl = document.getElementById('status');
+      var lines    = [];
+
+      var _origLog   = console.log.bind(console);
+      var _origError = console.error.bind(console);
+
+      console.log = function () {
+        var msg = Array.prototype.slice.call(arguments).join(' ');
+        lines.push(msg);
+        outputEl.textContent = lines.join('\n');
+        _origLog.apply(console, arguments);
+      };
+
+      console.error = function () {
+        var msg = Array.prototype.slice.call(arguments).join(' ');
+        lines.push('[ERROR] ' + msg);
+        outputEl.textContent = lines.join('\n');
+        _origError.apply(console, arguments);
+      };
+    </script>
+
+    <script>
+      // Run tests and update the status banner
+      var allPassed = false;
+
+      try {
+        // property-test.js calls fc.assert() synchronously; any failure throws.
+        var script = document.createElement('script');
+        script.src = './property-test.js';
+        script.onload = function () {
+          statusEl.className = 'pass';
+          statusEl.textContent = '✅ All properties passed';
+        };
+        script.onerror = function (err) {
+          statusEl.className = 'fail';
+          statusEl.textContent = '❌ Script failed to load — check path';
+        };
+        document.body.appendChild(script);
+      } catch (err) {
+        statusEl.className = 'fail';
+        statusEl.textContent = '❌ Tests FAILED — see output below';
+        lines.push('ERROR: ' + err.message);
+        outputEl.textContent = lines.join('\n');
+      }
+
+      // Catch synchronous fc.assert() failures thrown during script eval
+      window.addEventListener('error', function (event) {
+        statusEl.className = 'fail';
+        statusEl.textContent = '❌ Tests FAILED — see output below';
+        lines.push('UNCAUGHT ERROR: ' + event.message);
+        outputEl.textContent = lines.join('\n');
+      });
+    </script>
+  </body>
+</html>

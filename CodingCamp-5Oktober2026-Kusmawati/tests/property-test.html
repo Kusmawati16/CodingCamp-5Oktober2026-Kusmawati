@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Property Tests — Life Dashboard</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      max-width: 860px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      background: #f5f5f9;
+      color: #3d3d4e;
+    }
+    h1 { font-size: 1.4rem; margin-bottom: 0.25rem; }
+    .summary {
+      display: inline-block;
+      margin: 0.75rem 0 1.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+    .summary.all-pass { background: #a8d5ba; color: #1a4a2a; }
+    .summary.has-fail { background: #f5c6a0; color: #5a2a00; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 0.45rem 0.75rem; border-bottom: 1px solid #ddd; font-size: 0.9rem; }
+    th { background: #ede8f5; font-weight: 600; }
+    tr.pass td:first-child::before { content: '✓ '; color: #2a7a2a; }
+    tr.fail td:first-child::before { content: '✕ '; color: #cc2222; }
+    tr.fail { background: #fff0f0; }
+    tr.pass:hover { background: #f0fff4; }
+  </style>
+</head>
+<body>
+  <h1>Property Tests — Life Dashboard</h1>
+  <p>Open browser console for additional failure details.</p>
+  <div id="summary"></div>
+  <table>
+    <thead>
+      <tr><th>Test</th><th>Result</th></tr>
+    </thead>
+    <tbody id="results-body"></tbody>
+  </table>
+
+  <!-- Load the test suite -->
+  <script src="property-test.js"></script>
+
+  <!-- Render results injected by the test suite into window._propertyTestResults -->
+  <script>
+    (function () {
+      var data    = window._propertyTestResults;
+      var tbody   = document.getElementById('results-body');
+      var summary = document.getElementById('summary');
+
+      if (!data) {
+        summary.textContent = 'Error: _propertyTestResults not found.';
+        return;
+      }
+
+      var allPass = data.passed === data.total;
+      var summaryEl = document.createElement('div');
+      summaryEl.className = 'summary ' + (allPass ? 'all-pass' : 'has-fail');
+      summaryEl.textContent = data.passed + ' / ' + data.total + ' tests passed' + (allPass ? ' — all green ✓' : ' — failures detected ✕');
+      summary.appendChild(summaryEl);
+
+      data.results.forEach(function (r) {
+        var tr = document.createElement('tr');
+        tr.className = r.passed ? 'pass' : 'fail';
+        var tdDesc   = document.createElement('td');
+        var tdStatus = document.createElement('td');
+        tdDesc.textContent   = r.description;
+        tdStatus.textContent = r.passed ? 'PASS' : 'FAIL';
+        tdStatus.style.fontWeight = '600';
+        tdStatus.style.color = r.passed ? '#2a7a2a' : '#cc2222';
+        tr.appendChild(tdDesc);
+        tr.appendChild(tdStatus);
+        tbody.appendChild(tr);
+      });
+    }());
+  </script>
+</body>
+</html>
