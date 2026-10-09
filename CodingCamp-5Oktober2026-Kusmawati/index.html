@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Life Dashboard</title>
+    <link rel="stylesheet" href="css/style.css" 
+  </head>
+  <body>
+    <main class="dashboard-grid">
+
+      <!-- Greeting Panel -->
+      <nav>
+      <section id="greeting-panel" class="panel">
+        <h2 id="greeting-text">Good Morning</h2>
+        <p id="clock">00:00:00</p>
+        <p id="date-display">Monday, January 1, 2025</p>
+      </section>
+      </nav>
+
+      <!-- Focus Timer Panel -->
+      <article>
+      <section id="timer-panel" class="panel">
+        <h2>Focus Timer</h2>
+        <div id="timer-display">25:00</div>
+        <div class="timer-controls">
+          <button id="btn-start">Start</button>
+          <button id="btn-stop" disabled>Stop</button>
+          <button id="btn-reset">Reset</button>
+        </div>
+      </section>
+      </article>
+    
+      <!-- To-Do List Panel -->
+  
+      <section id="todo-panel" class="panel">
+        <h2>To-Do List</h2>
+        <div class="todo-input-row">
+          <input id="task-input" type="text" placeholder="Add a new task…" />
+          <button id="btn-add-task">Add</button>
+        </div>
+        <ul id="task-list"></ul>
+      </section>
+        </article>
+        <footer>
+      <!-- Quick Links Panel -->
+      <section id="links-panel" class="panel">
+        <h2>Quick Links</h2>
+        <div id="links-grid"></div>
+        <button id="btn-add-link">+ Add Link</button>
+        <div id="add-link-form" class="hidden">
+          <input id="link-label-input" placeholder="Label" />
+          <input id="link-url-input" placeholder="https://…" />
+          <button id="btn-confirm-link">Add</button>
+          <button id="btn-cancel-link">Cancel</button>
+        </div>
+      </section>
+      </footer>
+    </div>
+    <script src="js/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Property Test — formatTime (Property 1)</title>
+    <style>
+      body { font-family: 'Segoe UI', system-ui, sans-serif; padding: 2rem; background: #f5f5f5; }
+      h1   { font-size: 1.4rem; margin-bottom: 1rem; }
+      .result-box {
+        background: #fff;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        white-space: pre-wrap;
+        font-family: monospace;
+        font-size: 0.9rem;
+        line-height: 1.6;
+      }
+      .pass  { color: #2a7a2a; }
+      .fail  { color: #c0392b; font-weight: bold; }
+      .info  { color: #555; }
+      .title { font-weight: bold; color: #333; }
+    </style>
+  </head>
+  <body>
+    <h1>Property Test — formatTime (Property 1)</h1>
+    <p class="info">Open the browser Console (F12) for the full log. Results are also rendered below.</p>
+    <div id="output" class="result-box">Running…</div>
+
+    <script>
+      // ─────────────────────────────────────────────────────────────────────────
+      // System Under Test
+      // Identical to GreetingModule.formatTime in js/app.js.
+      // Extracted here as a pure function so it is testable without the IIFE.
+      // ─────────────────────────────────────────────────────────────────────────
+      /**
+       * Formats a Date's time portion as HH:MM:SS.
+       * Pads hours, minutes, seconds to two digits with ':' separators.
+       *
+       * @param {Date} date
+       * @returns {string}  e.g. "09:05:03"
+       */
+      function formatTime(date) {
+        var h = String(date.getHours()).padStart(2, '0');
+        var m = String(date.getMinutes()).padStart(2, '0');
+        var s = String(date.getSeconds()).padStart(2, '0');
+        return h + ':' + m + ':' + s;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────────
+      // Minimal property-test harness
+      // ─────────────────────────────────────────────────────────────────────────
+      var lines   = [];
+      var failures = 0;
+
+      function log(msg, cls) {
+        console.log(msg);
+        lines.push('<span class="' + (cls || 'info') + '">' + escHtml(msg) + '</span>');
+      }
+
+      function escHtml(s) {
+        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      }
+
+      /**
+       * Asserts that `value` matches `regex`.
+       * On failure: records the counter-example and increments the failure counter.
+       *
+       * @param {string}   testName     Human-readable description
+       * @param {string}   value        The actual string returned by formatTime
+       * @param {RegExp}   regex        Pattern that must match
+       * @param {Date}     inputDate    The Date that produced `value` (for reporting)
+       */
+      function assertMatches(testName, value, regex, inputDate) {
+        if (regex.test(value)) {
+          log('  PASS  ' + testName + '  →  "' + value + '"', 'pass');
+        } else {
+          failures++;
+          var detail = '  FAIL  ' + testName +
+            '  |  input: ' + inputDate.toISOString() +
+            '  |  got: "' + value + '"' +
+            '  |  expected: ' + regex;
+          log(detail, 'fail');
+        }
+      }
+
+      // ─────────────────────────────────────────────────────────────────────────
+      // Property 1 — formatTime always returns HH:MM:SS
+      // Validates: Requirements 1.2
+      //
+      // For any Date object, formatTime(date) SHALL return a string that exactly
+      // matches ^\d{2}:\d{2}:\d{2}$ — two-digit hours, two-digit minutes,
+      // two-digit seconds separated by colons — with no leading or trailing chars.
+      // ─────────────────────────────────────────────────────────────────────────
+      var PATTERN = /^\d{2}:\d{2}:\d{2}$/;
+
+      log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'title');
+      log('Property 1  —  formatTime is always HH:MM:SS', 'title');
+      log('Validates: Requirements 1.2', 'info');
+      log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'title');
+
+      // ── Fixed edge-case examples ───────────────────────────────────────────
+
+      log('\n[Edge cases]', 'title');
+
+      // Midnight: 00:00:00
+      (function () {
+        var d = new Date(2025, 0, 1, 0, 0, 0);   // Jan 1 2025 00:00:00
+        assertMatches('Midnight (00:00:00)', formatTime(d), PATTERN, d);
+      })();
+
+      // Single-digit minute and second: 09:05:03
+      (function () {
+        var d = new Date(2025, 0, 1, 9, 5, 3);
+        assertMatches('Single-digit fields (09:05:03)', formatTime(d), PATTERN, d);
+      })();
+
+      // Noon exactly: 12:00:00
+      (function () {
+        var d = new Date(2025, 5, 15, 12, 0, 0);
+        assertMatches('Noon (12:00:00)', formatTime(d), PATTERN, d);
+      })();
+
+      // End of day: 23:59:59
+      (function () {
+        var d = new Date(2025, 11, 31, 23, 59, 59);
+        assertMatches('End of day (23:59:59)', formatTime(d), PATTERN, d);
+      })();
+
+      // All-nines: 09:09:09
+      (function () {
+        var d = new Date(2025, 3, 4, 9, 9, 9);
+        assertMatches('All-nines (09:09:09)', formatTime(d), PATTERN, d);
+      })();
+
+      // Max fields: 23:59:00
+      (function () {
+        var d = new Date(2025, 3, 4, 23, 59, 0);
+        assertMatches('Max hours/minutes (23:59:00)', formatTime(d), PATTERN, d);
+      })();
+
+      // ── Every possible H:M:S combination (exhaustive small sweep) ──────────
+
+      log('\n[Exhaustive — all 24 hours × 60 minutes × 60 seconds = 86 400 combinations]', 'title');
+
+      var YEAR  = 2025;
+      var MONTH = 0;    // January
+      var DAY   = 1;
+
+      var exhaustiveFailures = 0;
+      var firstFailExample   = null;
+
+      for (var h = 0; h < 24; h++) {
+        for (var m = 0; m < 60; m++) {
+          for (var s = 0; s < 60; s++) {
+            var d = new Date(YEAR, MONTH, DAY, h, m, s);
+            var result = formatTime(d);
+            if (!PATTERN.test(result)) {
+              exhaustiveFailures++;
+              failures++;
+              if (!firstFailExample) {
+                firstFailExample = { h: h, m: m, s: s, result: result };
+              }
+            }
+          }
+        }
+      }
+
+      if (exhaustiveFailures === 0) {
+        log('  PASS  All 86 400 H:M:S combinations match \\d{2}:\\d{2}:\\d{2}', 'pass');
+      } else {
+        log('  FAIL  ' + exhaustiveFailures + ' combination(s) failed!', 'fail');
+        if (firstFailExample) {
+          log('        First counter-example: h=' + firstFailExample.h +
+              ' m=' + firstFailExample.m +
+              ' s=' + firstFailExample.s +
+              '  →  "' + firstFailExample.result + '"', 'fail');
+        }
+      }
+
+      // ── Pseudo-random property test (500 random timestamps) ───────────────
+
+      log('\n[Random property — 500 arbitrary Date objects]', 'title');
+
+      // Deterministic PRNG (xorshift32) so results are reproducible
+      var seed = 0xDEADBEEF;
+      function xorshift32() {
+        seed ^= seed << 13;
+        seed ^= seed >> 17;
+        seed ^= seed << 5;
+        return (seed >>> 0);          // unsigned 32-bit
+      }
+
+      // Span: Jan 1 2000 – Jan 1 2100
+      var MIN_TS = new Date(2000, 0, 1).getTime();
+      var MAX_TS = new Date(2100, 0, 1).getTime();
+      var RANGE  = MAX_TS - MIN_TS;
+
+      var RANDOM_TRIALS = 500;
+      var randomFailures = 0;
+      var firstRandomFail = null;
+
+      for (var i = 0; i < RANDOM_TRIALS; i++) {
+        // Combine two 32-bit randoms for a 53-bit offset inside RANGE
+        var hi = xorshift32();
+        var lo = xorshift32();
+        var offset = ((hi % 100000) * 1000 + (lo % 1000));
+        var ts = MIN_TS + (offset % RANGE);
+        if (ts < MIN_TS) { ts += RANGE; }
+
+        var rd = new Date(ts);
+        var res = formatTime(rd);
+        if (!PATTERN.test(res)) {
+          randomFailures++;
+          failures++;
+          if (!firstRandomFail) {
+            firstRandomFail = { date: rd.toISOString(), result: res };
+          }
+        }
+      }
+
+      if (randomFailures === 0) {
+        log('  PASS  All ' + RANDOM_TRIALS + ' random dates matched \\d{2}:\\d{2}:\\d{2}', 'pass');
+      } else {
+        log('  FAIL  ' + randomFailures + ' of ' + RANDOM_TRIALS + ' random dates failed!', 'fail');
+        if (firstRandomFail) {
+          log('        First counter-example: ' + firstRandomFail.date +
+              '  →  "' + firstRandomFail.result + '"', 'fail');
+        }
+      }
+
+      // ── Summary ────────────────────────────────────────────────────────────
+
+      log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'title');
+      if (failures === 0) {
+        log('RESULT: ALL TESTS PASSED — Property 1 is satisfied ✓', 'pass');
+      } else {
+        log('RESULT: ' + failures + ' FAILURE(S) — Property 1 is VIOLATED ✗', 'fail');
+      }
+      log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'title');
+
+      // Render to page
+      document.getElementById('output').innerHTML = lines.join('\n');
+
+      // Throw so the browser console shows a red error on failure
+      if (failures > 0) {
+        throw new Error('Property 1 FAILED: ' + failures + ' assertion(s) did not pass.');
+      }
+    </script>
+  </body>
+</html>
